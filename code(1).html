@@ -1,0 +1,3618 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calendario Fiscale Italia & Gestione Attività</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Material+Icons&display=swap" rel="stylesheet" />
+<style>
+  /* Reset & base */
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #fefefe60 0%, #efefef90 100%);
+    color: #374151;
+    -webkit-user-select: none;
+    user-select: none;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+
+  /* Global Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(99, 102, 241, 0.4);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(99, 102, 241, 0.7);
+  }
+  ::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+
+  /* Mobile Navigation Arrows */
+  .mobile-nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(99, 102, 241, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    font-size: 24px;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .mobile-nav-arrow:hover {
+    background: rgba(99, 102, 241, 1);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 12px 24px rgba(99, 102, 241, 0.7);
+  }
+
+  .mobile-nav-arrow.left {
+    left: 24px;
+  }
+
+  .mobile-nav-arrow.right {
+    right: 24px;
+  }
+
+  /* Mobile screen indicator */
+  .mobile-screen-indicator {
+    display: none;
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 1001;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Header */
+  header.app-header {
+    position: sticky;
+    top: 0;
+    height: 64px;
+    background: rgba(255 255 255 / 0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 1px 8px rgba(99, 102, 241, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    user-select: none;
+    z-index: 50;
+  }
+  
+  .header-left {
+    font-weight: 800;
+    font-size: clamp(1.1rem, 3vw, 1.75rem);
+    color: #4b5563;
+    user-select: text;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    flex: 1;
+  }
+  .header-left:hover {
+    color: #6366f1;
+  }
+  
+  .header-center {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  button#accedi-btn {
+    background: #6366f1;
+    border: none;
+    color: #fff;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  button#accedi-btn:hover,
+  button#accedi-btn:focus-visible {
+    background-color: #4f46e5;
+    outline: none;
+  }
+
+  /* Authentication Forms Container */
+  #auth-forms-container {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255 255 255 / 0.95);
+    backdrop-filter: saturate(180%) blur(22px);
+    display: none;
+    z-index: 100;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  
+  #auth-forms-container.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Form wrapper to center the form */
+  .auth-form-wrapper {
+    max-width: 400px;
+    width: 100%;
+    background: rgba(255 255 255 / 0.95);
+    backdrop-filter: saturate(180%) blur(22px);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+    user-select: text;
+  }
+
+  /* Form styles */
+  form.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  form.auth-form label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+  }
+  form.auth-form input[type="text"],
+  form.auth-form input[type="email"],
+  form.auth-form input[type="password"],
+  form.auth-form input[type="tel"] {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    font-size: 1rem;
+    outline-offset: 2px;
+    transition: border-color 0.3s ease;
+  }
+  form.auth-form input[type="text"]:focus,
+  form.auth-form input[type="email"]:focus,
+  form.auth-form input[type="password"]:focus,
+  form.auth-form input[type="tel"]:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+    outline: none;
+  }
+  form.auth-form button {
+    margin-top: 8px;
+    background: #6366f1;
+    border: none;
+    color: white;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+  form.auth-form button:hover,
+  form.auth-form button:focus-visible {
+    background-color: #4f46e5;
+    outline: none;
+  }
+
+  /* Switch links */
+  .form-switch {
+    text-align: center;
+    margin-top: 14px;
+    color: #6366f1;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: underline;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+  .form-switch:focus,
+  .form-switch:hover {
+    color: #4f46e5;
+    background-color: rgba(99, 102, 241, 0.1);
+    outline: none;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+
+  #app-content {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    min-height: calc(100vh - 64px);
+    transition: opacity 0.3s ease;
+  }
+  
+  #app-content.hidden {
+    display: none !important;
+  }
+
+  /* Modal Styles */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 16px;
+    overflow-y: auto;
+  }
+  
+  .modal-overlay.active {
+    display: flex;
+  }
+  
+  .modal-content {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-radius: 20px;
+    padding: 24px;
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    user-select: text;
+  }
+  
+  .modal-overlay.active .modal-content {
+    transform: scale(1);
+  }
+  
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  
+  .modal-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    margin: 0;
+  }
+  
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .modal-close:hover,
+  .modal-close:focus {
+    background: #f3f4f6;
+    color: #374151;
+    transform: scale(1.1);
+    outline: none;
+  }
+  
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .form-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #374151;
+  }
+  
+  .form-input,
+  .form-textarea,
+  .form-select {
+    padding: 12px 14px;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: #ffffff;
+  }
+  
+  .form-input:focus,
+  .form-textarea:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+  
+  .color-picker-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  
+  .color-option {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .color-option:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .color-option.selected {
+    border-color: #1f2937;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #1f2937;
+  }
+  
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
+  }
+  
+  .btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    min-width: 120px;
+  }
+  
+  .btn-primary {
+    background: #6366f1;
+    color: #ffffff;
+    border-color: #6366f1;
+  }
+  
+  .btn-primary:hover,
+  .btn-primary:focus {
+    background: #4f46e5;
+    border-color: #4f46e5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    outline: none;
+  }
+  
+  .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+  }
+  
+  .btn-secondary:hover,
+  .btn-secondary:focus {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    outline: none;
+  }
+
+  /* Tag Input Styles */
+  .tag-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .tag-input {
+    flex-grow: 1;
+    min-width: 200px;
+  }
+  
+  .add-tag-btn {
+    padding: 10px 14px;
+    background: #6366f1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
+  
+  .add-tag-btn:hover {
+    background: #4f46e5;
+  }
+  
+  .tags-display {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  
+  .tag-item {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .remove-tag {
+    cursor: pointer;
+    font-weight: bold;
+    color: #6b7280;
+    transition: color 0.3s ease;
+    font-size: 1.1rem;
+  }
+  
+  .remove-tag:hover {
+    color: #dc2626;
+  }
+
+  /* Recurrence type styles */
+  .recurrence-info {
+    background: #f0f9ff;
+    border: 1px solid #0ea5e9;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    color: #0369a1;
+    line-height: 1.4;
+  }
+
+  /* Layout containers */
+  #app {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+    min-height: calc(100vh - 64px);
+    position: relative;
+  }
+
+  /* Mobile sliding container - Full screen columns */
+  .mobile-sliding-container {
+    display: none;
+    width: 300vw;
+    height: calc(100vh - 64px);
+    position: relative;
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+    transform: translateX(0%);
+    overflow: hidden;
+  }
+
+  .mobile-sliding-container.show-tasks {
+    transform: translateX(-33.333%);
+  }
+
+  .mobile-sliding-container.show-details {
+    transform: translateX(-66.666%);
+  }
+
+  .mobile-column {
+    width: 100vw;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: saturate(180%) blur(20px);
+  }
+
+  .mobile-column.sidebar-column {
+    left: 0;
+  }
+
+  .mobile-column.tasks-column {
+    left: 100vw;
+  }
+
+  .mobile-column.details-column {
+    left: 200vw;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    flex: 0 0 280px;
+    background: rgba(255 255 255 / 0.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px 24px 16px;
+    overflow-y: auto;
+    max-height: calc(100vh - 64px);
+    transition: transform 0.3s ease;
+  }
+
+  /* Year group styles */
+  .year-group {
+    margin-bottom: 8px;
+  }
+  
+  .year-group-header {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 0;
+    user-select: none;
+  }
+  
+  .year-group-label {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #4b5563;
+    user-select: text;
+    margin: 0;
+    flex-grow: 1;
+    border-bottom: 1.5px solid #cbd5e1;
+    padding-bottom: 4px;
+  }
+  
+  .year-group-toggle {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .year-group-toggle.collapsed {
+    transform: rotate(-90deg);
+  }
+  
+  .year-group-content {
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+    max-height: 2000px;
+  }
+  
+  .year-group-content.collapsed {
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Task List Container */
+  .task-list-container {
+    flex-grow: 1;
+    background: rgba(255 255 255 / 0.9);
+    backdrop-filter: saturate(180%) blur(20px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid #ddd;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* Right panel: Task & project details */
+  .task-details {
+    flex: 0 0 350px;
+    background: rgba(255 255 255 / 0.95);
+    backdrop-filter: saturate(180%) blur(24px);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+  }
+
+  /* Footer - hidden by default on desktop */
+  footer.app-footer {
+    background: rgba(255 255 255 / 0.75);
+    backdrop-filter: saturate(200%) blur(20px);
+    box-shadow: 0 -3px 10px rgba(99, 102, 241, 0.12);
+    padding: 12px 16px;
+    font-size: 0.75rem;
+    color: #4b5563;
+    text-align: center;
+    user-select: none;
+    position: sticky;
+    bottom: 0;
+    z-index: 40;
+    display: none;
+  }
+
+  /* Sidebar header */
+  .sidebar-header {
+    font-weight: 800;
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    margin-bottom: 20px;
+    color: #1f2937;
+    user-select: text;
+  }
+
+  /* Projects list */
+  .projects-list {
+    overflow-y: auto;
+    max-height: calc(100vh - 240px);
+    padding-right: 4px;
+  }
+  
+  .projects-list::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .projects-list::-webkit-scrollbar-track {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(243, 244, 246, 0.7) 100%);
+    border-radius: 8px;
+    margin: 4px 0;
+  }
+  
+  .projects-list::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+  
+  .project-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    gap: 12px;
+  }
+  .project-item:hover {
+    background: #f3f4f6;
+  }
+  .project-item.selected {
+    background: #e0e7ff;
+    box-shadow: 0 0 6px #6366f1;
+  }
+  .project-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .project-text {
+    flex-grow: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  
+  /* Paid status dot style */
+  .paid-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .paid-yes {
+    background-color: #10b981;
+  }
+  .paid-no {
+    background-color: #ef4444;
+  }
+  .paid-warning {
+    background-color: #fbbf24;
+  }
+
+  /* Filters */
+  .filters {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .filter-btn {
+    background: #f9fafb;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #4b5563;
+    transition: background-color 0.3s ease;
+    border: none;
+  }
+  .filter-btn.active {
+    background: #6366f1;
+    color: #fff;
+  }
+  .filter-btn:hover:not(.active) {
+    background: #e5e7eb;
+  }
+
+  /* Search */
+  .search-container {
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+  .search-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    outline-offset: 2px;
+  }
+  .search-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  }
+
+  /* Task list */
+  .task-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+  }
+  .task-item {
+    background: rgba(255 255 255 / 0.7);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.12);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    outline-offset: 2px;
+    outline: none;
+    user-select: none;
+  }
+  .task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.2);
+  }
+  .task-item:focus-visible {
+    outline: 3px solid #4f46e5;
+    outline-offset: 4px;
+  }
+  .task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .task-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #1e293b;
+    line-height: 1.3;
+    flex-grow: 1;
+  }
+  .task-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .priority-badge {
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 0.7rem;
+    color: white;
+    text-transform: uppercase;
+    user-select: none;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .priority-urgent {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+  }
+  .priority-high {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+  }
+  .priority-medium {
+    background: linear-gradient(135deg, #6366f1, #4338ca);
+  }
+  .priority-low {
+    background: linear-gradient(135deg, #6ee7b7, #059669);
+  }
+  .due-date {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 10px;
+    background: #e0e7ff;
+    color: #4338ca;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .due-date.overdue {
+    background: #fecaca;
+    color: #b91c1c;
+    font-weight: 700;
+    box-shadow: 0 0 5px #b91c1c88;
+  }
+  .task-description {
+    color: #4b5563;
+    font-size: 0.95rem;
+    font-weight: 400;
+    max-height: 2.8em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4em;
+  }
+  .task-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: #a5b4fc;
+    color: #3730a3;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  /* Task details */
+  .task-details h2 {
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: #222;
+  }
+  .task-details .section {
+    margin-bottom: 24px;
+  }
+  .task-details label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #374151;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .task-details input[type="text"],
+  .task-details textarea,
+  .task-details select,
+  .task-details input[type="date"],
+  .task-details input[type="time"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    outline-offset: 2px;
+  }
+  .task-details textarea {
+    resize: vertical;
+    min-height: 60px;
+  }
+
+  .subtasks-list {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    margin-top: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .subtask-item {
+    background: rgba(255 255 255 / 0.85);
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    user-select: none;
+  }
+  .subtask-item input[type="checkbox"] {
+    accent-color: #6366f1;
+    width: 16px;
+    height: 16px;
+  }
+  .subtask-title {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #374151;
+  }
+  .subtask-completed {
+    text-decoration: line-through;
+    color: #9ca3af;
+    font-style: italic;
+  }
+
+  /* Activity timeline */
+  .activity-timeline {
+    max-height: 160px;
+    overflow-y: auto;
+    padding-left: 12px;
+    border-left: 2px solid #e0e7ff;
+    color: #4b5563;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .activity-item {
+    margin-bottom: 8px;
+  }
+  .activity-header {
+    font-weight: 700;
+    color: #4338ca;
+    font-size: 0.75rem;
+  }
+
+  /* Floating Action Button */
+  .fab-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 30;
+  }
+  .fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    color: white;
+    border: none;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.6);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .fab:hover,
+  .fab:focus-visible {
+    box-shadow: 0 12px 28px rgba(99, 102, 241, 0.8);
+    transform: scale(1.05);
+    outline: none;
+  }
+
+  /* FAB menu */
+  .fab-menu {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    background: rgba(255 255 255 / 0.95);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    transform-origin: bottom right;
+    transition: all 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+    min-width: 180px;
+  }
+  .fab-menu.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .fab-menu button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: none;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    color: #4338ca;
+    transition: background-color 0.2s ease;
+    text-align: left;
+  }
+  .fab-menu button:hover,
+  .fab-menu button:focus-visible {
+    background: #e0e7ff;
+    outline: none;
+  }
+  .fab-menu .material-icons {
+    font-size: 20px;
+  }
+
+  /* Project info container */
+  .project-info {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+  }
+  .project-info h3 {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .project-color-small {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .project-paid-label {
+    margin-top: 8px;
+    font-size: 0.85rem;
+  }
+  .project-paid-select {
+    width: 140px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  /* MOBILE RESPONSIVENESS */
+
+  /* Mobile: 320px - 767px */
+  @media (max-width: 767px) {
+    body, html {
+      overflow: auto;
+    }
+
+    /* Show mobile navigation elements */
+    .mobile-nav-arrow {
+      display: flex;
+    }
+
+    .mobile-screen-indicator {
+      display: block;
+    }
+
+    .header-left {
+      font-size: clamp(1rem, 4vw, 1.3rem);
+    }
+
+    button#accedi-btn {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+
+    #app {
+      display: none; /* Hide desktop layout */
+    }
+
+    /* Show mobile sliding container */
+    .mobile-sliding-container {
+      display: block;
+    }
+
+    /* Adjust the sidebar to fill the full mobile column */
+    .mobile-column .sidebar {
+      flex: 1;
+      padding: 20px 16px;
+      background: transparent;
+      border: none;
+      max-height: none;
+      overflow-y: auto;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Adjust the task list container to fill the full mobile column */
+    .mobile-column .task-list-container {
+      flex: 1;
+      border: none;
+      background: transparent;
+      min-height: auto;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Adjust the task details to fill the full mobile column */
+    .mobile-column .task-details {
+      flex: 1;
+      background: transparent;
+      padding: 20px 16px;
+      min-width: auto;
+      width: 100%;
+      height: 100%;
+    }
+
+    .sidebar-header {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .projects-list {
+      max-height: none;
+      padding-right: 0;
+      flex: 1;
+    }
+
+    .task-list {
+      padding: 16px;
+    }
+
+    .task-item {
+      margin-bottom: 12px;
+      padding: 16px;
+    }
+
+    .task-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .task-meta {
+      align-self: flex-end;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .priority-badge {
+      padding: 4px 8px;
+      font-size: 0.65rem;
+    }
+
+    .due-date {
+      font-size: 0.75rem;
+    }
+
+    .fab-container {
+      bottom: 100px;
+      right: 20px;
+    }
+
+    .fab {
+      width: 52px;
+      height: 52px;
+      font-size: 22px;
+    }
+
+    .fab-menu {
+      min-width: 160px;
+      bottom: 65px;
+    }
+
+    footer.app-footer {
+      display: block;
+      font-size: 0.7rem;
+      padding: 10px 16px;
+    }
+
+    /* Modal adjustments for mobile */
+    .modal-content {
+      margin: 16px;
+      max-width: calc(100% - 32px);
+      padding: 20px;
+      max-height: 85vh;
+    }
+
+    .modal-title {
+      font-size: 1.3rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn {
+      width: 100%;
+      text-align: center;
+    }
+
+    .tag-input-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .tag-input {
+      min-width: unset;
+    }
+
+    .add-tag-btn {
+      align-self: stretch;
+      padding: 12px 14px;
+    }
+
+    /* Auth form mobile adjustments */
+    .auth-form-wrapper {
+      margin: 16px;
+      max-width: calc(100% - 32px);
+      padding: 20px;
+    }
+
+    form.auth-form input {
+      padding: 14px;
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    form.auth-form button {
+      padding: 16px;
+      font-size: 1rem;
+    }
+
+    .form-switch {
+      padding: 16px;
+      font-size: 0.95rem;
+    }
+
+    /* Project item mobile optimization */
+    .project-item {
+      padding: 16px 18px;
+      margin-bottom: 10px;
+    }
+
+    .project-color {
+      width: 22px;
+      height: 22px;
+    }
+
+    .paid-dot {
+      width: 14px;
+      height: 14px;
+    }
+
+    .filter-btn {
+      padding: 12px 16px;
+      font-size: 0.75rem;
+    }
+
+    .year-group-label {
+      font-size: 1.1rem;
+    }
+
+    /* Search container adjustments */
+    .search-container {
+      padding: 20px 16px;
+    }
+
+    .search-input {
+      padding: 14px 16px;
+      font-size: 1.1rem;
+    }
+
+    /* Task details adjustments */
+    .task-details h2 {
+      font-size: 1.3rem;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .task-details .section {
+      margin-bottom: 20px;
+    }
+
+    .task-details input,
+    .task-details textarea,
+    .task-details select {
+      padding: 12px 14px;
+      font-size: 1rem;
+      border-radius: 12px;
+    }
+
+    .project-info {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .project-info h3 {
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+  }
+
+  /* Tablet: 768px - 1023px */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    /* Hide mobile sliding container */
+    .mobile-sliding-container {
+      display: none;
+    }
+
+    .mobile-nav-arrow,
+    .mobile-screen-indicator {
+      display: none;
+    }
+
+    #app {
+      flex-direction: row;
+      display: flex;
+    }
+
+    .sidebar {
+      flex-basis: 260px;
+      position: relative;
+      transform: none !important;
+      box-shadow: none;
+      max-width: 260px;
+      border-right: 1px solid #ddd;
+      border-radius: 0;
+      padding: 16px 12px 24px 16px;
+      height: auto;
+      overflow-y: auto;
+    }
+
+    .sidebar.open {
+      transform: none !important;
+    }
+
+    .task-list-container {
+      flex-grow: 1;
+      min-height: calc(100vh - 64px);
+      border-right: 1px solid #ddd;
+    }
+
+    .task-details {
+      display: flex !important;
+      flex-basis: 300px;
+      min-width: 300px;
+      overflow-y: auto;
+      padding: 18px 20px;
+    }
+
+    .fab-container {
+      bottom: 20px;
+      right: 20px;
+      transform: none;
+    }
+  }
+
+  /* Desktop: 1024px+ */
+  @media (min-width: 1024px) {
+    /* Hide mobile sliding container */
+    .mobile-sliding-container {
+      display: none;
+    }
+
+    .mobile-nav-arrow,
+    .mobile-screen-indicator {
+      display: none;
+    }
+
+    #app {
+      flex-direction: row;
+      display: flex;
+    }
+
+    .sidebar {
+      position: relative;
+      transform: none !important;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 16px 12px 24px 16px;
+      border-right: 1px solid #ddd;
+      width: 280px;
+      flex-shrink: 0;
+      height: auto;
+      overflow-y: auto;
+    }
+    
+    .sidebar.open {
+      transform: none !important;
+    }
+
+    .task-list-container {
+      flex-grow: 1;
+      min-height: calc(100vh - 64px);
+      border-right: 1px solid #ddd;
+    }
+
+    .task-details {
+      display: flex !important;
+      flex-basis: 350px;
+      min-width: 350px;
+      overflow-y: auto;
+    }
+
+    .fab-container {
+      bottom: 24px;
+      right: 24px;
+      transform: none;
+    }
+
+    /* Restore desktop task layout */
+    .task-header {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .task-meta {
+      flex-direction: column;
+    }
+  }
+
+  /* Touch improvements */
+  @media (pointer: coarse) {
+    .project-item,
+    .task-item,
+    .filter-btn,
+    .fab-menu button {
+      min-height: 44px; /* iOS recommended touch target */
+    }
+
+    .task-item {
+      padding: 18px 20px;
+    }
+
+    .project-item {
+      padding: 16px;
+    }
+  }
+
+  /* High DPI displays */
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .task-item,
+    .project-item {
+      border: 0.5px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  /* Landscape mobile adjustments */
+  @media (max-width: 767px) and (orientation: landscape) {
+    .fab-container {
+      bottom: 20px;
+    }
+
+    footer.app-footer {
+      display: none;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .sidebar,
+    .fab-container,
+    footer.app-footer,
+    header.app-header,
+    .mobile-nav-arrow,
+    .mobile-screen-indicator {
+      display: none !important;
+    }
+
+    .task-list-container {
+      border: none;
+      box-shadow: none;
+    }
+
+    .task-item {
+      break-inside: avoid;
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header" role="banner">
+  <div class="header-center">
+    <div class="header-left" id="header-title" role="button" tabindex="0" aria-label="Torna alla homepage">Calendario Fiscale Italia</div>
+  </div>
+  <button id="accedi-btn" aria-haspopup="true" aria-expanded="false" aria-controls="auth-forms-container" aria-label="Apri modulo di accesso">Accedi</button>
+</header>
+
+<!-- Mobile Navigation Arrows -->
+<button class="mobile-nav-arrow left" id="mobile-arrow-left" aria-label="Vai alla schermata precedente">
+  <span class="material-icons">chevron_left</span>
+</button>
+
+<button class="mobile-nav-arrow right" id="mobile-arrow-right" aria-label="Vai alla schermata successiva">
+  <span class="material-icons">chevron_right</span>
+</button>
+
+<!-- Mobile Screen Indicator -->
+<div class="mobile-screen-indicator" id="mobile-indicator">
+  Progetti
+</div>
+
+<section id="auth-forms-container" aria-live="polite" aria-atomic="true" aria-label="Moduli di autenticazione">
+  <div class="auth-form-wrapper">
+    <form id="login-form" class="auth-form" aria-label="Modulo di accesso">
+      <h2 style="text-align: center; margin-bottom: 20px; color: #1f2937; font-weight: 800;">Accedi</h2>
+      <label for="login-email">Email</label>
+      <input type="email" id="login-email" name="login-email" required autocomplete="email" placeholder="Inserisci la tua email" />
+      <label for="login-password">Password</label>
+      <input type="password" id="login-password" name="login-password" required autocomplete="current-password" placeholder="Inserisci la password" />
+      <button type="submit" aria-label="Invia dati di accesso">Accedi</button>
+      <div id="switch-to-signup" class="form-switch" role="button" tabindex="0" aria-label="Mostra modulo di registrazione">Non hai un account? Registrati</div>
+    </form>
+    
+    <form id="signup-form" class="auth-form hidden" aria-label="Modulo di registrazione">
+      <h2 style="text-align: center; margin-bottom: 20px; color: #1f2937; font-weight: 800;">Registrati</h2>
+      <label for="signup-name">Nome</label>
+      <input type="text" id="signup-name" name="signup-name" required autocomplete="given-name" placeholder="Nome" />
+      <label for="signup-surname">Cognome</label>
+      <input type="text" id="signup-surname" name="signup-surname" required autocomplete="family-name" placeholder="Cognome" />
+      <label for="signup-phone">Numero di telefono</label>
+      <input type="tel" id="signup-phone" name="signup-phone" required autocomplete="tel" placeholder="Numero di telefono" />
+      <label for="signup-email">Email</label>
+      <input type="email" id="signup-email" name="signup-email" required autocomplete="email" placeholder="Email" />
+      <label for="signup-city">Città</label>
+      <input type="text" id="signup-city" name="signup-city" required autocomplete="address-level2" placeholder="Città" />
+      <label for="signup-state">Provincia / Stato</label>
+      <input type="text" id="signup-state" name="signup-state" required autocomplete="address-level1" placeholder="Provincia / Stato" />
+      <button type="submit" aria-label="Invia dati di registrazione">Iscriviti</button>
+      <div id="switch-to-login" class="form-switch" role="button" tabindex="0" aria-label="Mostra modulo di accesso">Hai già un account? Accedi</div>
+    </form>
+  </div>
+</section>
+
+<div id="add-project-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Nuovo Progetto</h2>
+      <button type="button" class="modal-close" aria-label="Chiudi">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <form id="add-project-form" class="modal-form">
+      <div class="form-group">
+        <label class="form-label" for="project-name">Nome Progetto *</label>
+        <input type="text" id="project-name" class="form-input" required placeholder="es. Dichiarazione IVA" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="project-description">Descrizione</label>
+        <textarea id="project-description" class="form-textarea" placeholder="Descrizione del progetto..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Colore Progetto *</label>
+        <div class="color-picker-container">
+          <div class="color-option" data-color="#ef4444" style="background-color: #ef4444;" title="Rosso"></div>
+          <div class="color-option" data-color="#f59e0b" style="background-color: #f59e0b;" title="Arancione"></div>
+          <div class="color-option" data-color="#eab308" style="background-color: #eab308;" title="Giallo"></div>
+          <div class="color-option" data-color="#22c55e" style="background-color: #22c55e;" title="Verde"></div>
+          <div class="color-option" data-color="#06b6d4" style="background-color: #06b6d4;" title="Ciano"></div>
+          <div class="color-option selected" data-color="#3b82f6" style="background-color: #3b82f6;" title="Blu"></div>
+          <div class="color-option" data-color="#6366f1" style="background-color: #6366f1;" title="Indigo"></div>
+          <div class="color-option" data-color="#8b5cf6" style="background-color: #8b5cf6;" title="Viola"></div>
+          <div class="color-option" data-color="#ec4899" style="background-color: #ec4899;" title="Rosa"></div>
+          <div class="color-option" data-color="#6b7280" style="background-color: #6b7280;" title="Grigio"></div>
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="cancel-project">Annulla</button>
+        <button type="submit" class="btn btn-primary">Crea Progetto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="add-task-modal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Nuova Attività</h2>
+      <button type="button" class="modal-close" aria-label="Chiudi">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <form id="add-task-form" class="modal-form">
+      <div class="form-group">
+        <label class="form-label" for="task-name">Titolo Attività *</label>
+        <input type="text" id="task-name" class="form-input" required placeholder="es. Invio dichiarazione IVA" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="task-description">Descrizione</label>
+        <textarea id="task-description" class="form-textarea" placeholder="Descrizione dell'attività..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="task-project">Progetto *</label>
+        <select id="task-project" class="form-select" required>
+          <option value="">Seleziona progetto</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="task-recurrence">Tipo di Ricorrenza</label>
+        <select id="task-recurrence" class="form-select">
+          <option value="once">Solo questo anno</option>
+          <option value="monthly">Ogni mese</option>
+          <option value="biannual">Ogni 6 mesi</option>
+          <option value="quarterly">Ogni 3 mesi (trimestrale)</option>
+          <option value="yearly">Ogni anno</option>
+        </select>
+        <div id="recurrence-info" class="recurrence-info" style="display: none;">
+          <!-- Dynamic content will be displayed here -->
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="task-priority">Priorità</label>
+        <select id="task-priority" class="form-select">
+          <option value="low">Bassa</option>
+          <option value="medium" selected>Media</option>
+          <option value="high">Alta</option>
+          <option value="urgent">Urgente</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="task-due-date">Data di Scadenza</label>
+        <input type="date" id="task-due-date" class="form-input" />
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label" for="task-tags">Tag</label>
+        <div class="tag-input-container">
+          <input type="text" id="task-tags" class="form-input tag-input" placeholder="Aggiungi un tag..." />
+          <button type="button" class="add-tag-btn">Aggiungi</button>
+        </div>
+        <div class="tags-display" id="task-tags-display">
+          <!-- Tags will be displayed here -->
+        </div>
+      </div>
+      
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" id="cancel-task">Annulla</button>
+        <button type="submit" class="btn btn-primary">Crea Attività</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="app-content">
+  <!-- Mobile Sliding Container -->
+  <div class="mobile-sliding-container" id="mobile-container">
+    <!-- Projects Column -->
+    <div class="mobile-column sidebar-column">
+      <section class="sidebar" aria-label="Barra laterale dei progetti" tabindex="0">
+        <div class="sidebar-header">Progetti</div>
+        <div class="projects-list" role="list" tabindex="0" aria-label="Elenco progetti">
+          <!-- Projects appended here with year grouping -->
+        </div>
+
+        <div class="filters" role="region" aria-label="Filtri progetti">
+          <button class="filter-btn active" data-filter="all" aria-pressed="true">Tutti</button>
+          <button class="filter-btn" data-filter="notPaid" aria-pressed="false">Non Pagato</button>
+          <button class="filter-btn" data-filter="overdue" aria-pressed="false">Prossimi</button>
+          <button class="filter-btn" data-filter="completed" aria-pressed="false">Completati</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Tasks Column -->
+    <div class="mobile-column tasks-column">
+      <section class="task-list-container" aria-label="Contenitore elenco attività">
+        <div class="search-container">
+          <input
+            type="search"
+            class="search-input"
+            placeholder="Cerca attività..."
+            aria-label="Cerca attività"
+          />
+        </div>
+        <div class="task-list" role="list" tabindex="0" aria-label="Elenco attività">
+          <!-- Attività inserite dinamicamente -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Details Column -->
+    <div class="mobile-column details-column">
+      <section class="task-details" aria-label="Pannello dettagli attività" tabindex="0">
+        <div id="project-info-container" class="project-info" hidden>
+          <h3>
+            Progetto: <span id="project-name"></span>
+            <span id="project-color" class="project-color-small"></span>
+          </h3>
+          <div class="project-paid-label">
+            <label for="project-paid-select">Stato pagamento:</label>
+            <select
+              id="project-paid-select"
+              class="project-paid-select"
+              aria-label="Seleziona stato pagamento progetto per l'anno selezionato"
+            >
+              <option value="notPaid">Non Pagato</option>
+              <option value="paid">Pagato</option>
+            </select>
+          </div>
+        </div>
+
+        <h2 id="task-details-title">Seleziona un'attività</h2>
+        <form id="task-details-form" hidden>
+          <div class="section">
+            <label for="task-title-input">Titolo</label>
+            <input type="text" id="task-title-input" name="title" required />
+          </div>
+          <div class="section">
+            <label for="task-desc-input">Descrizione</label>
+            <textarea id="task-desc-input" name="description" rows="3"></textarea>
+          </div>
+          <div class="section">
+            <label for="task-priority-select">Priorità</label>
+            <select id="task-priority-select" name="priority" aria-label="Livello di priorità">
+              <option value="urgent">Urgente</option>
+              <option value="high">Alta</option>
+              <option value="medium" selected>Media</option>
+              <option value="low">Bassa</option>
+            </select>
+          </div>
+          <div class="section">
+            <label for="task-due-date-input">Data di scadenza</label>
+            <input type="date" id="task-due-date-input" name="dueDate" />
+          </div>
+          <div class="section">
+            <label>Attività secondarie</label>
+            <ul class="subtasks-list" aria-live="polite" id="subtasks-list"></ul>
+            <div style="margin-top: 8px; display: flex; gap: 8px">
+              <input type="text" id="subtask-new-input" placeholder="Aggiungi attività secondaria" aria-label="Aggiungi nuova attività secondaria" />
+              <button type="button" id="add-subtask-btn" aria-label="Aggiungi attività secondaria">
+                <span class="material-icons">add</span>
+              </button>
+            </div>
+          </div>
+          <div class="section">
+            <button
+              type="submit"
+              style="
+                padding: 12px 20px;
+                background: #6366f1;
+                border: none;
+                border-radius: 12px;
+                color: white;
+                font-weight: 700;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                width: 100%;
+              "
+            >
+              Salva modifiche
+            </button>
+          </div>
+        </form>
+        <div class="section">
+          <h3>Storico attività</h3>
+          <div class="activity-timeline" aria-live="polite" id="activity-timeline"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Desktop Layout -->
+  <div id="app" role="main">
+    <section class="sidebar" aria-label="Barra laterale dei progetti" tabindex="0">
+      <div class="sidebar-header">Progetti</div>
+      <div class="projects-list" role="list" tabindex="0" aria-label="Elenco progetti">
+        <!-- Projects appended here with year grouping -->
+      </div>
+
+      <div class="filters" role="region" aria-label="Filtri progetti">
+        <button class="filter-btn active" data-filter="all" aria-pressed="true">Tutti</button>
+        <button class="filter-btn" data-filter="notPaid" aria-pressed="false">Non Pagato</button>
+        <button class="filter-btn" data-filter="overdue" aria-pressed="false">Prossimi</button>
+        <button class="filter-btn" data-filter="completed" aria-pressed="false">Completati</button>
+      </div>
+    </section>
+
+    <section class="task-list-container" aria-label="Contenitore elenco attività">
+      <div class="search-container">
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Cerca attività..."
+          aria-label="Cerca attività"
+        />
+      </div>
+      <div class="task-list" role="list" tabindex="0" aria-label="Elenco attività">
+        <!-- Attività inserite dinamicamente -->
+      </div>
+    </section>
+
+    <section class="task-details" aria-label="Pannello dettagli attività" tabindex="0">
+      <div id="project-info-container-desktop" class="project-info" hidden>
+        <h3>
+          Progetto: <span id="project-name-desktop"></span>
+          <span id="project-color-desktop" class="project-color-small"></span>
+        </h3>
+        <div class="project-paid-label">
+          <label for="project-paid-select-desktop">Stato pagamento:</label>
+          <select
+            id="project-paid-select-desktop"
+            class="project-paid-select"
+            aria-label="Seleziona stato pagamento progetto per l'anno selezionato"
+          >
+            <option value="notPaid">Non Pagato</option>
+            <option value="paid">Pagato</option>
+          </select>
+        </div>
+      </div>
+
+      <h2 id="task-details-title-desktop">Seleziona un'attività</h2>
+      <form id="task-details-form-desktop" hidden>
+        <div class="section">
+          <label for="task-title-input-desktop">Titolo</label>
+          <input type="text" id="task-title-input-desktop" name="title" required />
+        </div>
+        <div class="section">
+          <label for="task-desc-input-desktop">Descrizione</label>
+          <textarea id="task-desc-input-desktop" name="description" rows="3"></textarea>
+        </div>
+        <div class="section">
+          <label for="task-priority-select-desktop">Priorità</label>
+          <select id="task-priority-select-desktop" name="priority" aria-label="Livello di priorità">
+            <option value="urgent">Urgente</option>
+            <option value="high">Alta</option>
+            <option value="medium" selected>Media</option>
+            <option value="low">Bassa</option>
+          </select>
+        </div>
+        <div class="section">
+          <label for="task-due-date-input-desktop">Data di scadenza</label>
+          <input type="date" id="task-due-date-input-desktop" name="dueDate" />
+        </div>
+        <div class="section">
+          <label>Attività secondarie</label>
+          <ul class="subtasks-list" aria-live="polite" id="subtasks-list-desktop"></ul>
+          <div style="margin-top: 8px; display: flex; gap: 8px">
+            <input type="text" id="subtask-new-input-desktop" placeholder="Aggiungi attività secondaria" aria-label="Aggiungi nuova attività secondaria" />
+            <button type="button" id="add-subtask-btn-desktop" aria-label="Aggiungi attività secondaria">
+              <span class="material-icons">add</span>
+            </button>
+          </div>
+        </div>
+        <div class="section">
+          <button
+            type="submit"
+            style="
+              padding: 12px 20px;
+              background: #6366f1;
+              border: none;
+              border-radius: 12px;
+              color: white;
+              font-weight: 700;
+              font-size: 1rem;
+              cursor: pointer;
+              transition: background-color 0.3s ease;
+              width: 100%;
+            "
+          >
+            Salva modifiche
+          </button>
+        </div>
+      </form>
+      <div class="section">
+        <h3>Storico attività</h3>
+        <div class="activity-timeline" aria-live="polite" id="activity-timeline-desktop"></div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="app-footer" role="contentinfo">
+    &copy; 2024 Calendario Fiscale Italia
+  </footer>
+
+  <div class="fab-container" role="region" aria-label="Pulsante di azione rapida">
+    <button
+      class="fab"
+      aria-haspopup="true"
+      aria-expanded="false"
+      aria-controls="fab-menu"
+      title="Crea nuova attività o progetto"
+    >
+      <span class="material-icons" aria-hidden="true">add</span>
+    </button>
+    <div id="fab-menu" class="fab-menu" role="menu" aria-hidden="true">
+      <button role="menuitem" id="fab-add-task">
+        <span class="material-icons" aria-hidden="true">task_alt</span> Nuova attività
+      </button>
+      <button role="menuitem" id="fab-add-project">
+        <span class="material-icons" aria-hidden="true">folder</span> Nuovo progetto
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  'use strict';
+
+  // Mobile navigation functionality
+  let currentMobileScreen = 0; // 0 = projects, 1 = tasks, 2 = details
+  const mobileContainer = document.getElementById('mobile-container');
+  const mobileArrowLeft = document.getElementById('mobile-arrow-left');
+  const mobileArrowRight = document.getElementById('mobile-arrow-right');
+  const mobileIndicator = document.getElementById('mobile-indicator');
+
+  const screenNames = ['Progetti', 'Attività', 'Dettagli'];
+
+  function updateMobileNavigation() {
+    console.log('Updating mobile navigation to screen:', currentMobileScreen);
+    
+    // Update container position
+    if (currentMobileScreen === 0) {
+      mobileContainer.className = 'mobile-sliding-container';
+    } else if (currentMobileScreen === 1) {
+      mobileContainer.className = 'mobile-sliding-container show-tasks';
+    } else if (currentMobileScreen === 2) {
+      mobileContainer.className = 'mobile-sliding-container show-details';
+    }
+
+    // Update indicator
+    mobileIndicator.textContent = screenNames[currentMobileScreen];
+
+    // Update arrow visibility
+    mobileArrowLeft.style.opacity = currentMobileScreen > 0 ? '1' : '0.3';
+    mobileArrowLeft.style.pointerEvents = currentMobileScreen > 0 ? 'auto' : 'none';
+    
+    mobileArrowRight.style.opacity = currentMobileScreen < 2 ? '1' : '0.3';
+    mobileArrowRight.style.pointerEvents = currentMobileScreen < 2 ? 'auto' : 'none';
+  }
+
+  function goToMobileScreen(screenIndex) {
+    console.log('Going to mobile screen:', screenIndex);
+    currentMobileScreen = Math.max(0, Math.min(2, screenIndex));
+    updateMobileNavigation();
+  }
+
+  mobileArrowLeft.addEventListener('click', () => {
+    console.log('Left arrow clicked, current screen:', currentMobileScreen);
+    if (currentMobileScreen > 0) {
+      goToMobileScreen(currentMobileScreen - 1);
+    }
+  });
+
+  mobileArrowRight.addEventListener('click', () => {
+    console.log('Right arrow clicked, current screen:', currentMobileScreen);
+    if (currentMobileScreen < 2) {
+      goToMobileScreen(currentMobileScreen + 1);
+    }
+  });
+
+  // Function to handle mobile project selection
+  function mobileSelectProject(projectId, year) {
+    console.log('Mobile selecting project:', projectId, year);
+    selectProject(projectId, year);
+    goToMobileScreen(1); // Move to tasks screen
+  }
+
+  // Function to handle mobile task selection
+  function mobileSelectTask(taskId) {
+    console.log('Mobile selecting task:', taskId);
+    selectTask(taskId);
+    goToMobileScreen(2); // Move to details screen
+  }
+
+  // Initialize mobile navigation
+  if (window.innerWidth <= 767) {
+    updateMobileNavigation();
+  }
+
+  // Update mobile navigation visibility on window resize
+  window.addEventListener('resize', () => {
+    if (window.innerWidth <= 767) {
+      updateMobileNavigation();
+    }
+  });
+
+  // Authentication form toggles and interactions with app hiding
+  const accediBtn = document.getElementById('accedi-btn');
+  const authContainer = document.getElementById('auth-forms-container');
+  const appContent = document.getElementById('app-content');
+  const headerTitle = document.getElementById('header-title');
+  const loginForm = document.getElementById('login-form');
+  const signupForm = document.getElementById('signup-form');
+  const switchToSignup = document.getElementById('switch-to-signup');
+  const switchToLogin = document.getElementById('switch-to-login');
+
+  // Modal elements
+  const addProjectModal = document.getElementById('add-project-modal');
+  const addTaskModal = document.getElementById('add-task-modal');
+  const addProjectForm = document.getElementById('add-project-form');
+  const addTaskForm = document.getElementById('add-task-form');
+
+  // Toggle auth container and hide/show app content
+  accediBtn.addEventListener('click', () => {
+    if (authContainer.classList.contains('active')) {
+      hideAuthShowApp();
+    } else {
+      showAuthHideApp();
+    }
+  });
+
+  // Make header title clickable to return to home
+  function returnToHome() {
+    hideAuthShowApp();
+    closeAllModals();
+    // Reset any selected items
+    selectedProjectId = 'all';
+    selectedProjectYear = null;
+    selectedTaskId = null;
+    currentMobileScreen = 0;
+    if (window.innerWidth <= 767) {
+      updateMobileNavigation();
+    }
+    
+    if (typeof projectInfoContainer !== 'undefined') projectInfoContainer.hidden = true;
+    if (typeof projectInfoContainerDesktop !== 'undefined') projectInfoContainerDesktop.hidden = true;
+    if (typeof renderProjects === 'function') renderProjects();
+    if (typeof renderTasks === 'function') renderTasks();
+    if (typeof clearTaskDetails === 'function') clearTaskDetails();
+    if (typeof updateFiltersSelection === 'function') updateFiltersSelection();
+  }
+
+  headerTitle.addEventListener('click', returnToHome);
+  headerTitle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      returnToHome();
+    }
+  });
+
+  function showAuthHideApp() {
+    authContainer.classList.add('active');
+    appContent.classList.add('hidden');
+    accediBtn.setAttribute('aria-expanded', 'true');
+    closeAllModals();
+    showLoginForm();
+    const firstInput = loginForm.querySelector('input[type="email"]');
+    if (firstInput) firstInput.focus();
+  }
+
+  function hideAuthShowApp() {
+    authContainer.classList.remove('active');
+    appContent.classList.remove('hidden');
+    accediBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function showLoginForm() {
+    loginForm.classList.remove('hidden');
+    signupForm.classList.add('hidden');
+    const firstInput = loginForm.querySelector('input[type="email"]');
+    if (firstInput) firstInput.focus();
+  }
+
+  function showSignupForm() {
+    signupForm.classList.remove('hidden');
+    loginForm.classList.add('hidden');
+    const firstInput = signupForm.querySelector('input[type="text"]');
+    if (firstInput) firstInput.focus();
+  }
+
+  switchToSignup.addEventListener('click', (e) => {
+    e.preventDefault();
+    showSignupForm();
+  });
+
+  switchToSignup.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      showSignupForm();
+    }
+  });
+
+  switchToLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLoginForm();
+  });
+
+  switchToLogin.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      showLoginForm();
+    }
+  });
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = loginForm["login-email"].value;
+    alert(`Login inviato per email: ${email}`);
+    hideAuthShowApp();
+  });
+
+  signupForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = signupForm["signup-name"].value;
+    const surname = signupForm["signup-surname"].value;
+    alert(`Registrazione inviata per: ${name} ${surname}`);
+    hideAuthShowApp();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (authContainer.classList.contains('active')) {
+        hideAuthShowApp();
+      } else if (addProjectModal.classList.contains('active') || addTaskModal.classList.contains('active')) {
+        closeAllModals();
+      }
+    }
+  });
+
+  // Modal Functions
+  function closeAllModals() {
+    addProjectModal.classList.remove('active');
+    addTaskModal.classList.remove('active');
+    closeFabMenu();
+    addProjectForm.reset();
+    addTaskForm.reset();
+    clearTagsDisplay();
+    resetColorSelection();
+    hideRecurrenceInfo();
+  }
+
+  function openProjectModal() {
+    closeAllModals();
+    addProjectModal.classList.add('active');
+    document.getElementById('project-name').focus();
+  }
+
+  function openTaskModal() {
+    closeAllModals();
+    populateProjectSelect();
+    addTaskModal.classList.add('active');
+    document.getElementById('task-name').focus();
+  }
+
+  document.querySelectorAll('.modal-close, #cancel-project, #cancel-task').forEach(btn => {
+    btn.addEventListener('click', closeAllModals);
+  });
+
+  addProjectModal.addEventListener('click', (e) => {
+    if (e.target === addProjectModal) closeAllModals();
+  });
+
+  addTaskModal.addEventListener('click', (e) => {
+    if (e.target === addTaskModal) closeAllModals();
+  });
+
+  // Color picker functionality
+  function resetColorSelection() {
+    document.querySelectorAll('.color-option').forEach(option => {
+      option.classList.remove('selected');
+    });
+    document.querySelector('.color-option[data-color="#3b82f6"]').classList.add('selected');
+  }
+
+  document.querySelectorAll('.color-option').forEach(option => {
+    option.addEventListener('click', () => {
+      document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+      option.classList.add('selected');
+    });
+  });
+
+  // Tag management for tasks
+  let currentTags = [];
+
+  function addTag() {
+    const tagInput = document.getElementById('task-tags');
+    const tagValue = tagInput.value.trim();
+    
+    if (tagValue && !currentTags.includes(tagValue)) {
+      currentTags.push(tagValue);
+      renderTags();
+      tagInput.value = '';
+    }
+  }
+
+  function removeTag(tagToRemove) {
+    currentTags = currentTags.filter(tag => tag !== tagToRemove);
+    renderTags();
+  }
+
+  function renderTags() {
+    const tagsDisplay = document.getElementById('task-tags-display');
+    tagsDisplay.innerHTML = currentTags.map(tag => 
+      `<div class="tag-item">
+        ${tag}
+        <span class="remove-tag" onclick="removeTag('${tag}')">&times;</span>
+      </div>`
+    ).join('');
+  }
+
+  function clearTagsDisplay() {
+    currentTags = [];
+    renderTags();
+  }
+
+  document.querySelector('.add-tag-btn').addEventListener('click', addTag);
+
+  document.getElementById('task-tags').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addTag();
+    }
+  });
+
+  // Recurrence type handler
+  const taskRecurrenceSelect = document.getElementById('task-recurrence');
+  const recurrenceInfoDiv = document.getElementById('recurrence-info');
+
+  taskRecurrenceSelect.addEventListener('change', () => {
+    const recurrenceType = taskRecurrenceSelect.value;
+    updateRecurrenceInfo(recurrenceType);
+  });
+
+  function updateRecurrenceInfo(recurrenceType) {
+    switch (recurrenceType) {
+      case 'once':
+        recurrenceInfoDiv.style.display = 'none';
+        break;
+      case 'monthly':
+        recurrenceInfoDiv.style.display = 'block';
+        recurrenceInfoDiv.innerHTML = '📅 Questa attività verrà creata automaticamente ogni mese (12 volte l\'anno) con la stessa data di scadenza.';
+        break;
+      case 'biannual':
+        recurrenceInfoDiv.style.display = 'block';
+        recurrenceInfoDiv.innerHTML = '📅 Questa attività verrà creata automaticamente ogni 6 mesi (2 volte l\'anno) con la stessa data di scadenza.';
+        break;
+      case 'quarterly':
+        recurrenceInfoDiv.style.display = 'block';
+        recurrenceInfoDiv.innerHTML = '📅 Questa attività verrà creata automaticamente ogni 3 mesi (4 volte l\'anno) con la stessa data di scadenza.';
+        break;
+      case 'yearly':
+        recurrenceInfoDiv.style.display = 'block';
+        recurrenceInfoDiv.innerHTML = '🗓️ Questa attività verrà creata automaticamente ogni anno con la stessa data di scadenza.';
+        break;
+      default:
+        recurrenceInfoDiv.style.display = 'none';
+    }
+  }
+
+  function hideRecurrenceInfo() {
+    recurrenceInfoDiv.style.display = 'none';
+  }
+
+  function populateProjectSelect() {
+    const projectSelect = document.getElementById('task-project');
+    projectSelect.innerHTML = '<option value="">Seleziona progetto</option>';
+    
+    projects.forEach(project => {
+      const option = document.createElement('option');
+      option.value = project.id;
+      option.textContent = project.name;
+      projectSelect.appendChild(option);
+    });
+  }
+
+  addProjectForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const selectedColor = document.querySelector('.color-option.selected');
+    
+    const newProject = {
+      id: `project-${crypto.randomUUID()}`,
+      name: document.getElementById('project-name').value.trim(),
+      description: document.getElementById('project-description').value.trim(),
+      color: selectedColor ? selectedColor.dataset.color : '#3b82f6',
+      members: [currentUserApp.id],
+      paidByYear: {},
+      settings: {},
+      createdAt: new Date().toISOString(),
+      createdBy: currentUserApp.id
+    };
+
+    projects.push(newProject);
+    addActivityLog('Progetto creato', `Nuovo progetto "${newProject.name}" creato`);
+    renderProjects();
+    renderTasks();
+    closeAllModals();
+    showSuccessMessage(`Progetto "${newProject.name}" creato con successo!`);
+  });
+
+  addTaskForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    const selectedProjectId = document.getElementById('task-project').value;
+    if (!selectedProjectId) {
+      alert('Seleziona un progetto per l\'attività');
+      return;
+    }
+
+    const recurrenceType = document.getElementById('task-recurrence').value;
+    const baseDate = document.getElementById('task-due-date').value;
+
+    const newTask = {
+      id: crypto.randomUUID(),
+      title: document.getElementById('task-name').value.trim(),
+      description: document.getElementById('task-description').value.trim(),
+      projectId: selectedProjectId,
+      priority: document.getElementById('task-priority').value,
+      status: 'pending',
+      dueDate: baseDate || null,
+      tags: [...currentTags],
+      subtasks: [],
+      timeSpent: 0,
+      createdBy: currentUserApp.id,
+      createdAt: new Date().toISOString(),
+      completedAt: null,
+      timeEntries: [],
+      activity: [],
+      assignedTo: currentUserApp.id,
+      recurrenceType: recurrenceType
+    };
+
+    newTask.activity.push({
+      timestamp: new Date().toISOString(),
+      description: 'Attività creata'
+    });
+
+    tasks.push(newTask);
+
+    if (recurrenceType !== 'once' && baseDate) {
+      createRecurringTasks(newTask, recurrenceType, baseDate);
+    }
+    
+    addActivityLog('Attività creata', `Nuova attività "${newTask.title}" aggiunta al progetto${recurrenceType !== 'once' ? ` (${getRecurrenceDisplayName(recurrenceType)})` : ''}`);
+    renderProjects();
+    renderTasks();
+    closeAllModals();
+    
+    const recurrenceMessages = {
+      'once': '',
+      'monthly': ' (ricorre ogni mese)',
+      'biannual': ' (ricorre ogni 6 mesi)', 
+      'quarterly': ' (ricorre ogni 3 mesi)',
+      'yearly': ' (ricorre ogni anno)'
+    };
+
+    const recurrenceText = recurrenceMessages[recurrenceType] || '';
+    showSuccessMessage(`Attività "${newTask.title}" creata con successo${recurrenceText}!`);
+    selectTask(newTask.id);
+  });
+
+  function getRecurrenceDisplayName(recurrenceType) {
+    const names = {
+      'monthly': 'mensile',
+      'biannual': 'semestrale',
+      'quarterly': 'trimestrale',
+      'yearly': 'annuale'
+    };
+    return names[recurrenceType] || recurrenceType;
+  }
+
+  function createRecurringTasks(baseTask, recurrenceType, baseDate) {
+    const baseDateObj = new Date(baseDate);
+    const currentYear = new Date().getFullYear();
+    
+    if (recurrenceType === 'monthly') {
+      // Create monthly instances for current year and next 4 years
+      for (let year = currentYear; year <= currentYear + 4; year++) {
+        for (let month = 0; month < 12; month++) {
+          const taskDate = new Date(baseDateObj);
+          taskDate.setFullYear(year);
+          taskDate.setMonth(month);
+          
+          // Skip the original task date
+          if (taskDate.toISOString().split('T')[0] === baseDate) continue;
+          
+          const monthName = taskDate.toLocaleDateString('it-IT', { month: 'long' });
+          const taskYear = taskDate.getFullYear();
+          
+          const recurringTask = {
+            ...baseTask,
+            id: crypto.randomUUID(),
+            dueDate: taskDate.toISOString().split('T')[0],
+            title: `${baseTask.title} (${monthName} ${taskYear})`,
+            activity: [{
+              timestamp: new Date().toISOString(),
+              description: 'Attività creata automaticamente (ricorrenza mensile)'
+            }],
+            createdAt: new Date().toISOString()
+          };
+          
+          tasks.push(recurringTask);
+        }
+      }
+    } else if (recurrenceType === 'biannual') {
+      for (let year = currentYear; year <= currentYear + 4; year++) {
+        for (let semester = 0; semester < 2; semester++) {
+          const taskDate = new Date(baseDateObj);
+          taskDate.setFullYear(year);
+          taskDate.setMonth(baseDateObj.getMonth() + (semester * 6));
+          
+          // Handle month overflow
+          while (taskDate.getMonth() > 11) {
+            taskDate.setFullYear(taskDate.getFullYear() + 1);
+            taskDate.setMonth(taskDate.getMonth() - 12);
+          }
+          
+          if (taskDate.toISOString().split('T')[0] === baseDate) continue;
+          
+          const semesterNum = semester + 1;
+          const taskYear = taskDate.getFullYear();
+          
+          const recurringTask = {
+            ...baseTask,
+            id: crypto.randomUUID(),
+            dueDate: taskDate.toISOString().split('T')[0],
+            title: `${baseTask.title} (S${semesterNum} ${taskYear})`,
+            activity: [{
+              timestamp: new Date().toISOString(),
+              description: 'Attività creata automaticamente (ricorrenza semestrale)'
+            }],
+            createdAt: new Date().toISOString()
+          };
+          
+          tasks.push(recurringTask);
+        }
+      }
+    } else if (recurrenceType === 'quarterly') {
+      // Create separate quarterly tasks for each quarter
+      for (let year = currentYear; year <= currentYear + 4; year++) {
+        for (let quarter = 0; quarter < 4; quarter++) {
+          const taskDate = new Date(baseDateObj);
+          taskDate.setFullYear(year);
+          taskDate.setMonth(baseDateObj.getMonth() + (quarter * 3));
+          
+          // Handle month overflow
+          while (taskDate.getMonth() > 11) {
+            taskDate.setFullYear(taskDate.getFullYear() + 1);
+            taskDate.setMonth(taskDate.getMonth() - 12);
+          }
+          
+          if (taskDate.toISOString().split('T')[0] === baseDate) continue;
+          
+          const quarterNum = quarter + 1;
+          const taskYear = taskDate.getFullYear();
+          
+          const recurringTask = {
+            ...baseTask,
+            id: crypto.randomUUID(),
+            dueDate: taskDate.toISOString().split('T')[0],
+            title: `${baseTask.title} (Q${quarterNum} ${taskYear})`,
+            activity: [{
+              timestamp: new Date().toISOString(),
+              description: 'Attività creata automaticamente (ricorrenza trimestrale)'
+            }],
+            createdAt: new Date().toISOString()
+          };
+          
+          tasks.push(recurringTask);
+        }
+      }
+    } else if (recurrenceType === 'yearly') {
+      // Create yearly tasks properly including all needed years
+      for (let year = currentYear; year <= currentYear + 5; year++) {
+        // Skip base task year only if it's the same date
+        if (year === new Date(baseDate).getFullYear()) {
+          continue; 
+        }
+        
+        const taskDate = new Date(baseDateObj);
+        taskDate.setFullYear(year);
+        
+        const recurringTask = {
+          ...baseTask,
+          id: crypto.randomUUID(),
+          dueDate: taskDate.toISOString().split('T')[0],
+          title: `${baseTask.title} (${year})`,
+          activity: [{
+            timestamp: new Date().toISOString(),
+            description: 'Attività creata automaticamente (ricorrenza annuale)'
+          }],
+          createdAt: new Date().toISOString()
+        };
+        
+        tasks.push(recurringTask);
+      }
+    }
+  }
+
+  function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+      z-index: 2000;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      max-width: 280px;
+      word-wrap: break-word;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(0)';
+    }, 10);
+    
+    setTimeout(() => {
+      notification.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        if (document.body.contains(notification)) {
+          document.body.removeChild(notification);
+        }
+      }, 300);
+    }, 3000);
+  }
+
+  // Application data and functions
+  const currentUserApp = { id: 'user-001', name: 'Tu' };
+  let yearGroupStates = {};
+
+  function addActivityLog(action, description) {
+    console.log(`[${new Date().toLocaleString('it-IT')}] ${action}: ${description}`);
+  }
+  
+  async function fetchProjectsFromServer() {
+    return [
+      {
+        id: 'project-imu',
+        name: 'IMU & Tasse sulla proprietà',
+        description: 'Attività relative alle tasse sulla proprietà inclusi IMU, TASI, ecc.',
+        color: '#ef4444',
+        members: [currentUserApp.id],
+        paidByYear: {},
+        settings: {},
+      },
+      {
+        id: 'project-730',
+        name: 'Dichiarazione Modello 730',
+        description: 'Scadenze presentazione e pagamento per la dichiarazione 730.',
+        color: '#2563eb',
+        members: [currentUserApp.id],
+        paidByYear: {},
+        settings: {},
+      },
+      {
+        id: 'project-iva',
+        name: 'IVA (Imposta sul Valore Aggiunto)',
+        description: 'Dichiarazione e pagamento IVA.',
+        color: '#10b981',
+        members: [currentUserApp.id],
+        paidByYear: {},
+        settings: {},
+      },
+      {
+        id: 'project-irpef',
+        name: 'IRPEF e Ritenute',
+        description: "Attività relative all'imposta sul reddito, inclusa la dichiarazione delle ritenute.",
+        color: '#8b5cf6',
+        members: [currentUserApp.id],
+        paidByYear: {},
+        settings: {},
+      },
+      {
+        id: 'project-generic',
+        name: 'Promemoria fiscali generali',
+        description: 'Altri promemoria e scadenze fiscali generali.',
+        color: '#d97706',
+        members: [currentUserApp.id],
+        paidByYear: {},
+        settings: {},
+      },
+    ];
+  }
+
+  // Create quarterly IVA tasks for all years properly
+  function createIVATasksForAllYears() {
+    const currentYear = new Date().getFullYear();
+    const quarterlyDates = [
+      { quarter: 'Q1', month: 2, day: 31 }, // March 31
+      { quarter: 'Q2', month: 5, day: 30 }, // June 30
+      { quarter: 'Q3', month: 8, day: 30 }, // September 30
+      { quarter: 'Q4', month: 11, day: 31 } // December 31
+    ];
+
+    quarterlyDates.forEach(({ quarter, month, day }) => {
+      for (let year = currentYear; year <= currentYear + 4; year++) {
+        const dueDate = new Date(year, month, day);
+        const task = {
+          id: crypto.randomUUID(),
+          title: `Dichiarazione IVA (${quarter} ${year})`,
+          description: `Dichiarazione e pagamento IVA ${quarterToItalian(quarter)} ${year}.`,
+          projectId: 'project-iva',
+          priority: 'medium',
+          status: 'pending',
+          dueDate: dueDate.toISOString().split('T')[0],
+          tags: ['IVA', quarter, 'Trimestrale'],
+          subtasks: [],
+          timeSpent: 0,
+          createdBy: currentUserApp.id,
+          createdAt: new Date().toISOString(),
+          completedAt: null,
+          timeEntries: [],
+          activity: [{
+            timestamp: new Date().toISOString(),
+            description: 'Attività creata automaticamente'
+          }],
+          assignedTo: currentUserApp.id,
+          recurrenceType: 'quarterly'
+        };
+        
+        tasks.push(task);
+      }
+    });
+  }
+
+  function quarterToItalian(quarter) {
+    const mapping = {
+      'Q1': 'primo trimestre',
+      'Q2': 'secondo trimestre', 
+      'Q3': 'terzo trimestre',
+      'Q4': 'quarto trimestre'
+    };
+    return mapping[quarter] || quarter;
+  }
+
+  // Start with clean data from 2025
+  let tasks = [
+    // IMU - yearly task starting 2025
+    {
+      id: crypto.randomUUID(),
+      title: 'Pagamento annuale IMU',
+      description: 'Pagamento IMU per immobili residenziali.',
+      projectId: 'project-imu',
+      priority: 'high',
+      status: 'pending',
+      dueDate: '2025-06-17',
+      tags: ['IMU', 'Proprietà'],
+      subtasks: [],
+      timeSpent: 0,
+      createdBy: currentUserApp.id,
+      createdAt: new Date('2025-01-01').toISOString(),
+      completedAt: null,
+      timeEntries: [],
+      activity: [{
+        timestamp: new Date('2025-01-01').toISOString(),
+        description: 'Attività creata'
+      }],
+      assignedTo: currentUserApp.id,
+      recurrenceType: 'yearly'
+    },
+    // 730 - yearly task starting 2025
+    {
+      id: crypto.randomUUID(),
+      title: 'Dichiarazione modello 730',
+      description: 'Scadenza per la presentazione della dichiarazione 730.',
+      projectId: 'project-730',
+      priority: 'urgent',
+      status: 'pending',
+      dueDate: '2025-07-31',
+      tags: ['730', 'Dichiarazione', 'Presentazione'],
+      subtasks: [],
+      timeSpent: 0,
+      createdBy: currentUserApp.id,
+      createdAt: new Date('2025-01-01').toISOString(),
+      completedAt: null,
+      timeEntries: [],
+      activity: [{
+        timestamp: new Date('2025-01-01').toISOString(),
+        description: 'Attività creata'
+      }],
+      assignedTo: currentUserApp.id,
+      recurrenceType: 'yearly'
+    },
+    // IRPEF - yearly task starting 2025
+    {
+      id: crypto.randomUUID(),
+      title: 'Dichiarazione ritenute IRPEF',
+      description: 'Invio delle dichiarazioni per le ritenute su dipendenti.',
+      projectId: 'project-irpef',
+      priority: 'high',
+      status: 'pending',
+      dueDate: '2025-07-15',
+      tags: ['IRPEF', 'Ritenute'],
+      subtasks: [],
+      timeSpent: 0,
+      createdBy: currentUserApp.id,
+      completedAt: null,
+      createdAt: new Date('2025-01-01').toISOString(),
+      timeEntries: [],
+      activity: [{
+        timestamp: new Date('2025-01-01').toISOString(),
+        description: 'Attività creata'
+      }],
+      assignedTo: currentUserApp.id,
+      recurrenceType: 'yearly'
+    }
+  ];
+
+  let projects = [];
+  let selectedProjectId = 'all';
+  let selectedProjectYear = null;
+  let selectedTaskId = null;
+  let filterStatus = 'all';
+  let searchQuery = '';
+
+  const projectsListEls = document.querySelectorAll('.projects-list');
+  const taskListEls = document.querySelectorAll('.task-list');
+  const sidebarFilters = document.querySelectorAll('.filter-btn');
+  const searchInputs = document.querySelectorAll('.search-input');
+  
+  // Both mobile and desktop elements
+  const taskDetailsTitle = document.getElementById('task-details-title');
+  const taskDetailsTitleDesktop = document.getElementById('task-details-title-desktop');
+  const taskDetailsForm = document.getElementById('task-details-form');
+  const taskDetailsFormDesktop = document.getElementById('task-details-form-desktop');
+  const taskTitleInput = document.getElementById('task-title-input');
+  const taskTitleInputDesktop = document.getElementById('task-title-input-desktop');
+  const taskDescInput = document.getElementById('task-desc-input');
+  const taskDescInputDesktop = document.getElementById('task-desc-input-desktop');
+  const taskPrioritySelect = document.getElementById('task-priority-select');
+  const taskPrioritySelectDesktop = document.getElementById('task-priority-select-desktop');
+  const taskDueDateInput = document.getElementById('task-due-date-input');
+  const taskDueDateInputDesktop = document.getElementById('task-due-date-input-desktop');
+  const subtasksList = document.getElementById('subtasks-list');
+  const subtasksListDesktop = document.getElementById('subtasks-list-desktop');
+  const subtaskNewInput = document.getElementById('subtask-new-input');
+  const subtaskNewInputDesktop = document.getElementById('subtask-new-input-desktop');
+  const addSubtaskBtn = document.getElementById('add-subtask-btn');
+  const addSubtaskBtnDesktop = document.getElementById('add-subtask-btn-desktop');
+  const activityTimeline = document.getElementById('activity-timeline');
+  const activityTimelineDesktop = document.getElementById('activity-timeline-desktop');
+  
+  // Project info containers (mobile and desktop)
+  const projectInfoContainer = document.getElementById('project-info-container');
+  const projectInfoContainerDesktop = document.getElementById('project-info-container-desktop');
+  const projectNameEl = document.getElementById('project-name');
+  const projectNameElDesktop = document.getElementById('project-name-desktop');
+  const projectColorEl = document.getElementById('project-color');
+  const projectColorElDesktop = document.getElementById('project-color-desktop');
+  const projectPaidSelect = document.getElementById('project-paid-select');
+  const projectPaidSelectDesktop = document.getElementById('project-paid-select-desktop');
+
+  const fabButton = document.querySelector('.fab');
+  const fabMenu = document.querySelector('.fab-menu');
+  const fabAddTaskBtn = document.getElementById('fab-add-task');
+  const fabAddProjectBtn = document.getElementById('fab-add-project');
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    const d = new Date(dateStr);
+    if (isNaN(d)) return '-';
+    return d.toLocaleDateString('it-IT', { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function isOverdue(dateStr) {
+    if (!dateStr) return false;
+    const due = new Date(dateStr);
+    const now = new Date();
+    return due < now && !isNaN(due);
+  }
+
+  function isWithinThreeMonthsBefore(dateStr) {
+    if (!dateStr) return false;
+    const due = new Date(dateStr);
+    const now = new Date();
+    const threeMonthsBefore = new Date(due);
+    threeMonthsBefore.setMonth(threeMonthsBefore.getMonth() - 3);
+    
+    return now >= threeMonthsBefore && now < due;
+  }
+
+  // Going back to project-year based payment tracking
+  function isProjectPaidForYear(project, year) {
+    return project.paidByYear?.[year] === true;
+  }
+
+  function getProjectDotClass(project, year) {
+    const paid = project.paidByYear?.[year] || false;
+    
+    if (paid) {
+      return 'paid-yes';
+    } else {
+      const projectTasks = tasks.filter(
+        t => t.projectId === project.id && 
+        t.status === 'pending' && 
+        t.dueDate &&
+        new Date(t.dueDate).getFullYear() === year
+      );
+      
+      const anyOverdue = projectTasks.some(t => isOverdue(t.dueDate));
+      if (anyOverdue) return 'paid-no';
+
+      const anyWithinThreeMonths = projectTasks.some(t => isWithinThreeMonthsBefore(t.dueDate));
+      if (anyWithinThreeMonths) return 'paid-warning';
+
+      return 'paid-no';
+    }
+  }
+
+  function renderProjects() {
+    projectsListEls.forEach(projectsListEl => {
+      projectsListEl.innerHTML = '';
+      
+      const currentYear = new Date().getFullYear();
+      const targetYears = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3, currentYear + 4];
+
+      const allProjectEl = document.createElement('div');
+      allProjectEl.classList.add('project-item');
+      if (selectedProjectId === 'all') allProjectEl.classList.add('selected');
+      allProjectEl.tabIndex = 0;
+      allProjectEl.setAttribute('role', 'listitem');
+      allProjectEl.setAttribute('aria-label', 'Tutti i progetti');
+      allProjectEl.innerHTML = `
+        <div class="project-color" style="background: linear-gradient(135deg, #6366f1, #4338ca)"></div>
+        <div class="project-text">Tutti i progetti</div>
+      `;
+      
+      allProjectEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        selectedProjectId = 'all';
+        selectedProjectYear = null;
+        selectedTaskId = null;
+        projectInfoContainer.hidden = true;
+        projectInfoContainerDesktop.hidden = true;
+        
+        // Handle mobile navigation
+        if (window.innerWidth <= 767) {
+          currentMobileScreen = 0;
+          updateMobileNavigation();
+        }
+        
+        renderProjects();
+        renderTasks();
+        clearTaskDetails();
+        updateFiltersSelection();
+      });
+      
+      allProjectEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.stopPropagation();
+          selectedProjectId = 'all';
+          selectedProjectYear = null;
+          selectedTaskId = null;
+          projectInfoContainer.hidden = true;
+          projectInfoContainerDesktop.hidden = true;
+          
+          // Handle mobile navigation
+          if (window.innerWidth <= 767) {
+            currentMobileScreen = 0;
+            updateMobileNavigation();
+          }
+          
+          renderProjects();
+          renderTasks();
+          clearTaskDetails();
+          updateFiltersSelection();
+        }
+      });
+      projectsListEl.appendChild(allProjectEl);
+
+      targetYears.forEach(year => {
+        const projectsForYear = projects.filter(project => {
+          const paid = isProjectPaidForYear(project, year);
+          const projectTasks = tasks.filter(t => 
+            t.projectId === project.id && 
+            t.status === 'pending' && 
+            t.dueDate &&
+            new Date(t.dueDate).getFullYear() === year
+          );
+          
+          switch (filterStatus) {
+            case 'completed':
+              return paid;
+            case 'notPaid':
+              if (!paid && projectTasks.length > 0) return true;
+              for (let prevYear = currentYear - 5; prevYear < year; prevYear++) {
+                if (!isProjectPaidForYear(project, prevYear)) {
+                  const prevYearTasks = tasks.filter(t => 
+                    t.projectId === project.id && 
+                    t.status === 'pending' && 
+                    t.dueDate &&
+                    new Date(t.dueDate).getFullYear() === prevYear
+                  );
+                  if (prevYearTasks.length > 0) return true;
+                }
+              }
+              return false;
+            case 'overdue':
+              return !paid && projectTasks.some(t => isWithinThreeMonthsBefore(t.dueDate));
+            case 'all':
+            default:
+              return projectTasks.length > 0;
+          }
+        });
+
+        if (projectsForYear.length === 0) return;
+
+        const yearGroupEl = document.createElement('div');
+        yearGroupEl.className = 'year-group';
+        yearGroupEl.dataset.year = year;
+        
+        const yearGroupHeader = document.createElement('div');
+        yearGroupHeader.className = 'year-group-header';
+        yearGroupHeader.innerHTML = `
+          <h3 class="year-group-label">Anno ${year}</h3>
+          <div class="year-group-toggle">
+            <span class="material-icons">expand_less</span>
+          </div>
+        `;
+        
+        const yearGroupContent = document.createElement('div');
+        yearGroupContent.className = 'year-group-content';
+        
+        if (yearGroupStates[year] === undefined) {
+          yearGroupStates[year] = { collapsed: false };
+        }
+        
+        if (yearGroupStates[year].collapsed) {
+          yearGroupHeader.querySelector('.year-group-toggle').classList.add('collapsed');
+          yearGroupContent.classList.add('collapsed');
+        }
+        
+        yearGroupHeader.addEventListener('click', (e) => {
+          e.stopPropagation();
+          
+          const toggleIcon = yearGroupHeader.querySelector('.year-group-toggle');
+          const isCurrentlyCollapsed = toggleIcon.classList.contains('collapsed');
+          
+          if (isCurrentlyCollapsed) {
+            toggleIcon.classList.remove('collapsed');
+            yearGroupContent.classList.remove('collapsed');
+            yearGroupStates[year].collapsed = false;
+          } else {
+            toggleIcon.classList.add('collapsed');
+            yearGroupContent.classList.add('collapsed');
+            yearGroupStates[year].collapsed = true;
+          }
+        });
+        
+        projectsForYear.forEach(project => {
+          const isSelected = selectedProjectId === project.id && selectedProjectYear === year;
+          const projectEl = document.createElement('div');
+          projectEl.classList.add('project-item');
+          if (isSelected) projectEl.classList.add('selected');
+          projectEl.tabIndex = 0;
+          projectEl.setAttribute('role', 'listitem');
+          projectEl.setAttribute('aria-label', `${project.name}, Anno: ${year}, Stato pagamento: ${project.paidByYear?.[year] ? 'Pagato' : 'Non Pagato'}`);
+
+          const dotClass = getProjectDotClass(project, year);
+
+          projectEl.innerHTML = `
+            <div class="project-color" style="background: ${project.color}"></div>
+            <div class="project-text">${project.name}</div>
+            <div class="paid-dot ${dotClass}" aria-label="${project.paidByYear?.[year] ? 'Pagato' : 'Non Pagato'}" role="img"></div>
+          `;
+
+          projectEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            // Handle mobile vs desktop selection
+            if (window.innerWidth <= 767) {
+              mobileSelectProject(project.id, year);
+            } else {
+              selectProject(project.id, year);
+            }
+          });
+          
+          projectEl.addEventListener('keydown', e => { 
+            if (e.key === 'Enter') {
+              e.stopPropagation();
+              
+              // Handle mobile vs desktop selection
+              if (window.innerWidth <= 767) {
+                mobileSelectProject(project.id, year);
+              } else {
+                selectProject(project.id, year);
+              }
+            }
+          });
+          yearGroupContent.appendChild(projectEl);
+        });
+        
+        yearGroupEl.appendChild(yearGroupHeader);
+        yearGroupEl.appendChild(yearGroupContent);
+        projectsListEl.appendChild(yearGroupEl);
+      });
+    });
+  }
+
+  function selectProject(projectId, year) {
+    if (projectId === 'all' || projectId == null) {
+      selectedProjectId = 'all';
+      selectedProjectYear = null;
+      selectedTaskId = null;
+      projectInfoContainer.hidden = true;
+      projectInfoContainerDesktop.hidden = true;
+      renderProjects();
+      renderTasks();
+      clearTaskDetails();
+      updateFiltersSelection();
+      return;
+    }
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    selectedProjectId = projectId;
+    selectedProjectYear = year;
+    selectedTaskId = null;
+    renderProjects();
+    renderTasks();
+    clearTaskDetails();
+    updateFiltersSelection();
+
+    // Update both mobile and desktop project info
+    if (projectInfoContainer) {
+      projectInfoContainer.hidden = false;
+      projectNameEl.textContent = `${project.name} - Anno ${year}`;
+      projectColorEl.style.backgroundColor = project.color;
+      projectPaidSelect.value = project.paidByYear?.[year] ? 'paid' : 'notPaid';
+    }
+    
+    if (projectInfoContainerDesktop) {
+      projectInfoContainerDesktop.hidden = false;
+      projectNameElDesktop.textContent = `${project.name} - Anno ${year}`;
+      projectColorElDesktop.style.backgroundColor = project.color;
+      projectPaidSelectDesktop.value = project.paidByYear?.[year] ? 'paid' : 'notPaid';
+    }
+  }
+
+  // Handle both mobile and desktop project paid select changes
+  function handleProjectPaidChange(selectElement) {
+    if (selectedProjectId === 'all' || selectedProjectYear === null) return;
+    const project = projects.find(p => p.id === selectedProjectId);
+    if (!project) return;
+
+    if (!project.paidByYear) project.paidByYear = {};
+    project.paidByYear[selectedProjectYear] = selectElement.value === 'paid';
+
+    selectedTaskId = null;
+    renderProjects();
+    renderTasks();
+    clearTaskDetails();
+    updateFiltersSelection();
+  }
+
+  projectPaidSelect.addEventListener('change', () => handleProjectPaidChange(projectPaidSelect));
+  projectPaidSelectDesktop.addEventListener('change', () => handleProjectPaidChange(projectPaidSelectDesktop));
+
+  function renderTasks() {
+    console.log('Rendering tasks...');
+    taskListEls.forEach(taskListEl => {
+      taskListEl.innerHTML = '';
+      let filteredTasks;
+
+      if (selectedProjectId === 'all') {
+        filteredTasks = tasks.slice();
+      } else {
+        filteredTasks = tasks.filter(t => t.projectId === selectedProjectId);
+        if (selectedProjectYear !== null) {
+          filteredTasks = filteredTasks.filter(t => {
+            if (!t.dueDate) return false;
+            const dueYear = new Date(t.dueDate).getFullYear();
+            return dueYear === selectedProjectYear;
+          });
+        }
+      }
+
+      if (filterStatus === 'notPaid') {
+        const currentYear = new Date().getFullYear();
+        filteredTasks = filteredTasks.filter(t => {
+          if (t.status !== 'pending') return false;
+          if (!t.dueDate) return false;
+          
+          const taskYear = new Date(t.dueDate).getFullYear();
+          const project = projects.find(p => p.id === t.projectId);
+          
+          if (!project) return false;
+          
+          return (taskYear <= currentYear && !isProjectPaidForYear(project, taskYear));
+        });
+      } else if (filterStatus === 'completed') {
+        filteredTasks = filteredTasks.filter(t => {
+          if (!t.dueDate) return false;
+          const taskYear = new Date(t.dueDate).getFullYear();
+          const project = projects.find(p => p.id === t.projectId);
+          return project && isProjectPaidForYear(project, taskYear);
+        });
+      } else if (filterStatus === 'overdue') {
+        filteredTasks = filteredTasks.filter(t => {
+          if (t.status !== 'pending') return false;
+          return isWithinThreeMonthsBefore(t.dueDate);
+        });
+      }
+
+      if (searchQuery.trim().length > 0) {
+        const sqLower = searchQuery.trim().toLowerCase();
+        filteredTasks = filteredTasks.filter(t =>
+          t.title.toLowerCase().includes(sqLower) ||
+          t.description.toLowerCase().includes(sqLower) ||
+          t.tags.some(tag => tag.toLowerCase().includes(sqLower))
+        );
+      }
+
+      console.log('Filtered tasks:', filteredTasks.length);
+
+      if (filteredTasks.length === 0) {
+        const noTaskEl = document.createElement('div');
+        noTaskEl.style.color = '#6b7280';
+        noTaskEl.style.fontSize = '1rem';
+        noTaskEl.style.textAlign = 'center';
+        noTaskEl.style.marginTop = '2rem';
+        noTaskEl.style.padding = '20px';
+        noTaskEl.textContent = 'Nessuna attività da mostrare.';
+        taskListEl.appendChild(noTaskEl);
+        return;
+      }
+
+      for (const task of filteredTasks) {
+        const taskEl = document.createElement('div');
+        taskEl.classList.add('task-item');
+        taskEl.tabIndex = 0;
+        taskEl.setAttribute('role', 'listitem');
+        taskEl.setAttribute('aria-label', `Attività: ${task.title}, Priorità: ${task.priority}, Scadenza: ${formatDate(task.dueDate)}, Stato: ${task.status}`);
+        taskEl.dataset.taskId = task.id;
+        if (task.id === selectedTaskId) taskEl.style.outline = '2px solid #4f46e5';
+
+        let priorityClass = 'priority-medium';
+        if (task.priority === 'urgent') priorityClass = 'priority-urgent';
+        else if (task.priority === 'high') priorityClass = 'priority-high';
+        else if (task.priority === 'low') priorityClass = 'priority-low';
+
+        const dueClass = task.status === 'pending' && isOverdue(task.dueDate) ? 'overdue' : '';
+
+        let recurrenceIndicator = '';
+        if (task.recurrenceType === 'monthly') {
+          recurrenceIndicator = '<span style="color: #0ea5e9; font-size: 0.7rem; margin-left: 6px;">📅 Mensile</span>';
+        } else if (task.recurrenceType === 'biannual') {
+          recurrenceIndicator = '<span style="color: #0ea5e9; font-size: 0.7rem; margin-left: 6px;">📅 Semestrale</span>';
+        } else if (task.recurrenceType === 'quarterly') {
+          recurrenceIndicator = '<span style="color: #0ea5e9; font-size: 0.7rem; margin-left: 6px;">📅 Trimestrale</span>';
+        } else if (task.recurrenceType === 'yearly') {
+          recurrenceIndicator = '<span style="color: #0ea5e9; font-size: 0.7rem; margin-left: 6px;">🗓️ Annuale</span>';
+        }
+
+        taskEl.innerHTML = `
+          <div class="task-header">
+            <div class="task-title">${task.title}${recurrenceIndicator}</div>
+            <div class="task-meta">
+              <span class="priority-badge ${priorityClass}">${task.priority.toUpperCase()}</span>
+              <span class="due-date ${dueClass}" title="Data di scadenza">${formatDate(task.dueDate)}</span>
+            </div>
+          </div>
+          <div class="task-description">${task.description || ''}</div>
+          <div class="task-tags" aria-label="Tag per attività">
+            ${task.tags.map(tag => `<div class="tag">${tag}</div>`).join('')}
+          </div>
+        `;
+
+        taskEl.addEventListener('click', e => {
+          e.stopPropagation();
+          console.log('Task clicked, mobile:', window.innerWidth <= 767);
+          
+          // Handle mobile vs desktop selection
+          if (window.innerWidth <= 767) {
+            mobileSelectTask(task.id);
+          } else {
+            selectTask(task.id);
+          }
+        });
+        
+        taskEl.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            console.log('Task keydown enter, mobile:', window.innerWidth <= 767);
+            // Handle mobile vs desktop selection
+            if (window.innerWidth <= 767) {
+              mobileSelectTask(task.id);
+            } else {
+              selectTask(task.id);
+            }
+          }
+        });
+
+        taskListEl.appendChild(taskEl);
+      }
+    });
+  }
+
+  function selectTask(taskId) {
+    selectedTaskId = taskId;
+    renderTasks();
+    showTaskDetails(taskId);
+  }
+
+  function clearTaskDetails() {
+    // Clear mobile elements
+    if (taskDetailsTitle) {
+      taskDetailsTitle.textContent = "Seleziona un'attività";
+      taskDetailsForm.reset();
+      taskDetailsForm.hidden = true;
+      subtasksList.innerHTML = '';
+      activityTimeline.innerHTML = '';
+    }
+    
+    // Clear desktop elements
+    if (taskDetailsTitleDesktop) {
+      taskDetailsTitleDesktop.textContent = "Seleziona un'attività";
+      taskDetailsFormDesktop.reset();
+      taskDetailsFormDesktop.hidden = true;
+      subtasksListDesktop.innerHTML = '';
+      activityTimelineDesktop.innerHTML = '';
+    }
+  }
+
+  function showTaskDetails(taskId) {
+    console.log('Showing task details for:', taskId);
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) {
+      clearTaskDetails();
+      return;
+    }
+    
+    // Update mobile elements
+    if (taskDetailsTitle) {
+      taskDetailsTitle.textContent = `Attività: ${task.title}`;
+      taskDetailsForm.hidden = false;
+      taskTitleInput.value = task.title;
+      taskDescInput.value = task.description || '';
+      taskPrioritySelect.value = task.priority || 'medium';
+      taskDueDateInput.value = task.dueDate || '';
+      
+      renderSubtasks(task.subtasks, subtasksList);
+      renderActivity(task.activity, activityTimeline);
+      
+      taskDetailsForm.onsubmit = ev => {
+        ev.preventDefault();
+        saveTaskDetails(taskId, false); // false = mobile
+      };
+    }
+    
+    // Update desktop elements
+    if (taskDetailsTitleDesktop) {
+      taskDetailsTitleDesktop.textContent = `Attività: ${task.title}`;
+      taskDetailsFormDesktop.hidden = false;
+      taskTitleInputDesktop.value = task.title;
+      taskDescInputDesktop.value = task.description || '';
+      taskPrioritySelectDesktop.value = task.priority || 'medium';
+      taskDueDateInputDesktop.value = task.dueDate || '';
+      
+      renderSubtasks(task.subtasks, subtasksListDesktop);
+      renderActivity(task.activity, activityTimelineDesktop);
+      
+      taskDetailsFormDesktop.onsubmit = ev => {
+        ev.preventDefault();
+        saveTaskDetails(taskId, true); // true = desktop
+      };
+    }
+  }
+
+  function renderSubtasks(subtasks, container) {
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (!subtasks || subtasks.length === 0) {
+      const emptyEl = document.createElement('div');
+      emptyEl.style.color = '#71717a';
+      emptyEl.style.fontStyle = 'italic';
+      emptyEl.style.padding = '8px 0';
+      emptyEl.textContent = 'Nessuna attività secondaria';
+      container.appendChild(emptyEl);
+      return;
+    }
+    
+    subtasks.forEach(st => {
+      const li = document.createElement('li');
+      li.classList.add('subtask-item');
+      li.tabIndex = 0;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = st.completed || false;
+      checkbox.setAttribute('aria-label', `Marca come completata l'attività secondaria ${st.title}`);
+      checkbox.addEventListener('change', () => {
+        st.completed = checkbox.checked;
+        logActivity(selectedTaskId, `Attività secondaria "${st.title}" marcata come ${st.completed ? 'completata' : 'incompleta'}`);
+        renderSubtasks(tasks.find(t => t.id === selectedTaskId).subtasks, subtasksList);
+        renderSubtasks(tasks.find(t => t.id === selectedTaskId).subtasks, subtasksListDesktop);
+        updateProjectStats(tasks.find(t => t.id === selectedTaskId).projectId);
+        renderTasks();
+      });
+      const span = document.createElement('span');
+      span.className = 'subtask-title' + (st.completed ? ' subtask-completed' : '');
+      span.textContent = st.title;
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      container.appendChild(li);
+    });
+  }
+
+  function renderActivity(activity, container) {
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (!activity || activity.length === 0) {
+      container.textContent = 'Nessuna attività registrata.';
+      return;
+    }
+    activity.slice().reverse().forEach(act => {
+      const actEl = document.createElement('div');
+      actEl.className = 'activity-item';
+      actEl.innerHTML = `<div class="activity-header">${new Date(act.timestamp).toLocaleString('it-IT')}</div><div>${act.description}</div>`;
+      container.appendChild(actEl);
+    });
+  }
+
+  function saveTaskDetails(taskId, isDesktop) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    if (isDesktop) {
+      task.title = taskTitleInputDesktop.value.trim() || task.title;
+      task.description = taskDescInputDesktop.value.trim() || '';
+      task.priority = taskPrioritySelectDesktop.value || 'medium';
+      task.dueDate = taskDueDateInputDesktop.value || '';
+    } else {
+      task.title = taskTitleInput.value.trim() || task.title;
+      task.description = taskDescInput.value.trim() || '';
+      task.priority = taskPrioritySelect.value || 'medium';
+      task.dueDate = taskDueDateInput.value || '';
+    }
+
+    logActivity(task.id, 'Dettagli attività aggiornati');
+
+    renderTasks();
+    showTaskDetails(task.id);
+    updateProjectStats(task.projectId);
+  }
+
+  function logActivity(taskId, description) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    task.activity = task.activity || [];
+    task.activity.push({
+      timestamp: new Date().toISOString(),
+      description,
+    });
+  }
+
+  function updateProjectStats(projectId) {
+    renderProjects();
+  }
+
+  // Handle both mobile and desktop subtask additions
+  function addSubtaskHandler(isDesktop) {
+    const inputEl = isDesktop ? subtaskNewInputDesktop : subtaskNewInput;
+    const val = inputEl.value.trim();
+    if (!val) return;
+    const task = tasks.find(t => t.id === selectedTaskId);
+    if (!task) return;
+    if (!task.subtasks) task.subtasks = [];
+    task.subtasks.push({ id: crypto.randomUUID(), title: val, completed: false });
+    logActivity(task.id, `Attività secondaria "${val}" aggiunta`);
+    renderSubtasks(task.subtasks, subtasksList);
+    renderSubtasks(task.subtasks, subtasksListDesktop);
+    inputEl.value = '';
+    updateProjectStats(task.projectId);
+    renderTasks();
+  }
+
+  addSubtaskBtn.addEventListener('click', () => addSubtaskHandler(false));
+  addSubtaskBtnDesktop.addEventListener('click', () => addSubtaskHandler(true));
+
+  subtaskNewInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSubtaskHandler(false);
+    }
+  });
+
+  subtaskNewInputDesktop.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addSubtaskHandler(true);
+    }
+  });
+
+  sidebarFilters.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sidebarFilters.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      filterStatus = btn.dataset.filter;
+      selectedTaskId = null;
+      clearTaskDetails();
+      projectInfoContainer.hidden = true;
+      projectInfoContainerDesktop.hidden = true;
+      
+      // Reset mobile to projects screen
+      if (window.innerWidth <= 767) {
+        currentMobileScreen = 0;
+        updateMobileNavigation();
+      }
+      
+      renderProjects();
+      renderTasks();
+    });
+  });
+
+  function updateFiltersSelection() {
+    sidebarFilters.forEach(b => {
+      if (b.dataset.filter === filterStatus) {
+        b.classList.add('active');
+        b.setAttribute('aria-pressed', 'true');
+      } else {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
+
+  searchInputs.forEach(searchInput => {
+    searchInput.addEventListener('input', e => {
+      searchQuery = e.target.value;
+      selectedTaskId = null;
+      renderTasks();
+      clearTaskDetails();
+      projectInfoContainer.hidden = true;
+      projectInfoContainerDesktop.hidden = true;
+    });
+  });
+
+  fabButton.addEventListener('click', () => {
+    if (fabMenu.classList.contains('open')) {
+      closeFabMenu();
+    } else {
+      openFabMenu();
+    }
+  });
+  function openFabMenu() {
+    fabMenu.classList.add('open');
+    fabButton.setAttribute('aria-expanded', 'true');
+  }
+  function closeFabMenu() {
+    fabMenu.classList.remove('open');
+    fabButton.setAttribute('aria-expanded', 'false');
+  }
+
+  fabAddTaskBtn.addEventListener('click', () => {
+    openTaskModal();
+  });
+
+  fabAddProjectBtn.addEventListener('click', () => {
+    openProjectModal();
+  });
+
+  // Initialize app with proper yearly task generation and IVA quarterly tasks
+  async function init() {
+    projects = await fetchProjectsFromServer();
+    
+    // Generate all IVA quarterly tasks for all years
+    createIVATasksForAllYears();
+    
+    // Generate recurring tasks for existing base tasks
+    const baseTasksToExpand = [
+      {
+        baseTask: tasks.find(t => t.title === 'Pagamento annuale IMU'),
+        recurrenceType: 'yearly'
+      },
+      {
+        baseTask: tasks.find(t => t.title === 'Dichiarazione modello 730'),
+        recurrenceType: 'yearly'
+      },
+      {
+        baseTask: tasks.find(t => t.title === 'Dichiarazione ritenute IRPEF'),
+        recurrenceType: 'yearly'
+      }
+    ];
+
+    baseTasksToExpand.forEach(({ baseTask, recurrenceType }) => {
+      if (baseTask && baseTask.dueDate) {
+        createRecurringTasks(baseTask, recurrenceType, baseTask.dueDate);
+      }
+    });
+    
+    renderProjects();
+    renderTasks();
+    clearTaskDetails();
+    updateFiltersSelection();
+    projectInfoContainer.hidden = true;
+    projectInfoContainerDesktop.hidden = true;
+    
+    if (window.innerWidth <= 767) {
+      updateMobileNavigation();
+    }
+    
+    console.log(`✅ App initialized successfully!`);
+    console.log(`📊 Total projects: ${projects.length}`);
+    console.log(`📋 Total tasks: ${tasks.length}`);
+    console.log(`🗓️ Tasks by year:`, 
+      [...new Set(tasks.map(t => t.dueDate ? new Date(t.dueDate).getFullYear() : null))]
+        .filter(y => y !== null)
+        .sort()
+        .map(year => `${year}: ${tasks.filter(t => t.dueDate && new Date(t.dueDate).getFullYear() === year).length} tasks`)
+        .join(', ')
+    );
+    console.log(`💰 IVA tasks:`, tasks.filter(t => t.projectId === 'project-iva').length);
+  }
+
+  init();
+</script>
+
+</body>
+</html>
+
