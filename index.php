@@ -6,6 +6,7 @@
     <title>Calendario Fiscale Italia</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/modern-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -152,7 +153,19 @@
         </div>
 
         <!-- Floating Action Button -->
-        <button class="fab">+</button>
+        <div class="fab-container">
+<button class="fab" id="fab-main"></button>
+            <div class="fab-options" id="fab-options">
+                <button class="fab-option" data-modal="newTaskModal">
+                    <i class="fas fa-tasks"></i>
+                    <span class="fab-tooltip">Nuova Attività</span>
+                </button>
+                <button class="fab-option" data-modal="newProjectModal">
+                    <i class="fas fa-folder-plus"></i>
+                    <span class="fab-tooltip">Nuovo Progetto</span>
+                </button>
+            </div>
+        </div>
 
         <!-- Modal Dialogs -->
         <div id="loginModal" class="modal">
@@ -342,12 +355,34 @@
                 });
             }
 
-            // FAB button for new task
-            const fabBtn = document.querySelector('.fab');
-            if (fabBtn) {
-                fabBtn.addEventListener('click', function(e) {
+            // FAB menu handling
+            const fabMain = document.getElementById('fab-main');
+            const fabOptions = document.getElementById('fab-options');
+            
+            if (fabMain && fabOptions) {
+                fabMain.addEventListener('click', function(e) {
                     e.preventDefault();
-                    openModal('newTaskModal');
+                    fabOptions.classList.toggle('active');
+                });
+
+                // Handle FAB option clicks
+                const fabOptionButtons = document.querySelectorAll('.fab-option');
+                fabOptionButtons.forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const modalId = this.getAttribute('data-modal');
+                        if (modalId) {
+                            openModal(modalId);
+                            fabOptions.classList.remove('active');
+                        }
+                    });
+                });
+
+                // Close FAB menu when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.fab-container')) {
+                        fabOptions.classList.remove('active');
+                    }
                 });
             }
 
