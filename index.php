@@ -6,6 +6,7 @@
     <title>Calendario Fiscale Italia</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/modern-style.css">
+    <link rel="icon" href="https://www.google.com/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="app-container">
@@ -152,6 +153,294 @@
 
         <!-- Floating Action Button -->
         <button class="fab">+</button>
+
+        <!-- Modal Dialogs -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <a href="#" class="modal-close">&times;</a>
+                <h2>Accedi</h2>
+                <form class="form" method="post" action="actions.php?action=login">
+                    <div class="form-group">
+                        <label for="login-email">Email *</label>
+                        <input type="email" id="login-email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password *</label>
+                        <input type="password" id="login-password" name="password" required autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="remember"> Ricordami
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <a href="#" class="btn-secondary">Annulla</a>
+                        <button type="submit" class="btn-primary">Accedi</button>
+                    </div>
+                </form>
+                <div class="form-footer">
+                    Non hai un account? <a href="#registerModal">Registrati qui</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <a href="#" class="modal-close">&times;</a>
+                <h2>Registrati</h2>
+                <form class="form" method="post" action="actions.php?action=register">
+                    <div class="form-group">
+                        <label for="register-name">Nome completo *</label>
+                        <input type="text" id="register-name" name="name" required autocomplete="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-email">Email *</label>
+                        <input type="email" id="register-email" name="email" required autocomplete="email">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Password *</label>
+                        <input type="password" id="register-password" name="password" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-confirm-password">Conferma Password *</label>
+                        <input type="password" id="register-confirm-password" name="confirm_password" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="terms" required> Accetto i <a href="#" target="_blank">termini e condizioni</a>
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <a href="#" class="btn-secondary">Annulla</a>
+                        <button type="submit" class="btn-primary">Registrati</button>
+                    </div>
+                </form>
+                <div class="form-footer">
+                    Hai già un account? <a href="#loginModal">Accedi qui</a>
+                </div>
+            </div>
+        </div>
+
+        <div id="newProjectModal" class="modal">
+            <div class="modal-content">
+                <a href="#" class="modal-close">&times;</a>
+                <h2>Nuovo Progetto</h2>
+                <form class="form" method="post" action="actions.php?action=create-project">
+                    <div class="form-group">
+                        <label for="project-name">Nome Progetto *</label>
+                        <input type="text" id="project-name" name="project-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-description">Descrizione</label>
+                        <textarea id="project-description" name="project-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="project-color">Colore Progetto *</label>
+                        <input type="color" id="project-color" name="project-color" required>
+                    </div>
+                    <div class="form-actions">
+                        <a href="#" class="btn-secondary">Annulla</a>
+                        <button type="submit" class="btn-primary">Crea Progetto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="newTaskModal" class="modal">
+            <div class="modal-content">
+                <a href="#" class="modal-close">&times;</a>
+                <h2>Nuova Attività</h2>
+                <form class="form" method="post" action="actions.php?action=create-task">
+                    <div class="form-group">
+                        <label for="task-title">Titolo Attività *</label>
+                        <input type="text" id="task-title" name="task-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description">Descrizione</label>
+                        <textarea id="task-description" name="task-description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-project">Progetto *</label>
+                        <select id="task-project" name="task-project" required>
+                            <option value="">Seleziona progetto</option>
+                            <option value="imu">IMU & Tasse sulla proprietà</option>
+                            <option value="730">Dichiarazione Modello 730</option>
+                            <option value="iva">IVA</option>
+                            <option value="irpef">IRPEF e Ritenute</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-recurrence">Tipo di Ricorrenza</label>
+                        <select id="task-recurrence" name="task-recurrence">
+                            <option value="yearly">Solo questo anno</option>
+                            <option value="monthly">Ogni mese</option>
+                            <option value="6months">Ogni 6 mesi</option>
+                            <option value="3months">Ogni 3 mesi (trimestrale)</option>
+                            <option value="yearly">Ogni anno</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-priority">Priorità</label>
+                        <select id="task-priority" name="task-priority">
+                            <option value="low">Bassa</option>
+                            <option value="medium">Media</option>
+                            <option value="high">Alta</option>
+                            <option value="urgent">Urgente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="task-due-date">Data di Scadenza</label>
+                        <input type="date" id="task-due-date" name="task-due-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-tags">Tag</label>
+                        <input type="text" id="task-tags" name="task-tags" placeholder="Aggiungi tag...">
+                    </div>
+                    <div class="form-actions">
+                        <a href="#" class="btn-secondary">Annulla</a>
+                        <button type="submit" class="btn-primary">Crea Attività</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
+    <!-- JavaScript for Modal Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Modal handling functions
+            function openModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+
+            function closeModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            }
+
+            function closeAllModals() {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    modal.style.display = 'none';
+                });
+                document.body.style.overflow = 'auto';
+            }
+
+            // Event listeners for buttons
+            const loginBtn = document.querySelector('.btn-accedi');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openModal('loginModal');
+                });
+            }
+
+            // FAB button for new task
+            const fabBtn = document.querySelector('.fab');
+            if (fabBtn) {
+                fabBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openModal('newTaskModal');
+                });
+            }
+
+            // Close buttons
+            const closeButtons = document.querySelectorAll('.modal-close');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Cancel buttons
+            const cancelButtons = document.querySelectorAll('.btn-secondary');
+            cancelButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const modal = this.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                        document.body.style.overflow = 'auto';
+                    }
+                });
+            });
+
+            // Project filters
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Project items
+            const projectItems = document.querySelectorAll('.project-item');
+            projectItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    projectItems.forEach(proj => proj.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Year sections toggle
+            const yearHeaders = document.querySelectorAll('.year-header');
+            yearHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const chevron = this.querySelector('.chevron');
+                    const projectList = this.nextElementSibling;
+                    if (projectList) {
+                        if (projectList.style.display === 'none') {
+                            projectList.style.display = 'block';
+                            chevron.style.transform = 'rotate(0deg)';
+                        } else {
+                            projectList.style.display = 'none';
+                            chevron.style.transform = 'rotate(-90deg)';
+                        }
+                    }
+                });
+            });
+
+            // Modal navigation
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('a[href^="#"]')) {
+                    e.preventDefault();
+                    const targetId = e.target.getAttribute('href').substring(1);
+                    if (targetId) {
+                        closeAllModals();
+                        if (targetId !== '#') {
+                            openModal(targetId);
+                        }
+                    }
+                }
+            });
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    closeModal(e.target.id);
+                }
+            });
+
+            // Close modals with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAllModals();
+                }
+            });
+        });
+    </script>
 </body>
 </html>
